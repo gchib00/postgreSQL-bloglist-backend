@@ -30,6 +30,16 @@ const start = async () => {
 
 start()
 
-app.use('/api/blogs', blogsRouter)
+const errorHandler = (err, req, res, next) => {
+  if (err.name === "SequelizeValidationError") {
+    res.status(400).send(err.message)
+  }
+  if (err.message === "Cannot read property 'set' of null") {
+    res.status(400).send(err.message)
+  }
+  next(err)
+}
 
+app.use('/api/blogs', blogsRouter)
+app.use(errorHandler)
 module.exports = app

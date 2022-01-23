@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes, Model } = require('sequelize')
 
-class Blog extends Model {}
+class User extends Model {}
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialectOptions: {
@@ -11,34 +11,28 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
 })
 
-Blog.init({
+User.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  author: {
+  username: {
     type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
   },
-  url: {
+  name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  likes: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  }
-},{
+ }, {
   sequelize,
   underscored: true,
-  timestamps: false,
-  modelName: 'blogs'
+  timestamps: true,
+  modelName: 'user'
 })
 
-Blog.sync()
+User.sync()
 
-module.exports = Blog
+module.exports = User

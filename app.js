@@ -2,6 +2,7 @@ const config = require('./utils/config')
 const express = require('express')
 const app = express()
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 
 const cors = require('cors')
 const { Sequelize } = require('sequelize')
@@ -37,9 +38,13 @@ const errorHandler = (err, req, res, next) => {
   if (err.message === "Cannot read property 'set' of null") {
     res.status(400).send(err.message)
   }
+  if (err.message) {
+    res.status(500).send(err.message)
+  }
   next(err)
 }
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 app.use(errorHandler)
 module.exports = app

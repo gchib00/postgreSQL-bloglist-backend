@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const { Blog, User } = require('../models/models')
+const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken')
 
 //middleware that checks if user is logged in:
@@ -17,18 +18,32 @@ const isAuthenticated = (req, res, next) => {
   }
   next()
 }
-    
 blogsRouter.get('/', async (req, res, next) => {
+  const where = {}
+  if (req.query.search) {
+    where.title = {[Op.substring]: req.query.search}
+  }
   try {
-    const blogs = await Blog.findAll()
+    const blogs = await Blog.findAll({where})
     blogs.forEach(blog => {
       console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`)
     })
-    res.status(200).send(blogs)
+    return res.status(200).send(blogs)
   } catch (err) {
     next(err)
-  } 
-}) 
+  }       
+})  
+// blogsRouter.get('/', async (req, res, next) => {
+//   try {
+//     const blogs = await Blog.findAll()
+//     blogs.forEach(blog => {
+//       console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`)
+//     })
+//     res.status(200).send(blogs)
+//   } catch (err) {
+//     next(err)
+//   } 
+// }) 
 blogsRouter.delete('/:id/', isAuthenticated, async (req, res, next) => {
   try {
     const blog = await Blog.findByPk(req.params.id)

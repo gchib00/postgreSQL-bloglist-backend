@@ -19,9 +19,15 @@ const isAuthenticated = (req, res, next) => {
   next()
 }
 blogsRouter.get('/', async (req, res, next) => {
-  const where = {}
-  if (req.query.search) {
-    where.title = {[Op.substring]: req.query.search}
+  let where = {}
+  const searchedStr = req.query.search
+  if (searchedStr) {
+    where = {
+      [Op.or]: [
+        { title: {[Op.iLike]: '%'+searchedStr+'%'} },
+        { author: {[Op.iLike]: '%'+searchedStr+'%'} }
+      ]
+    }
   }
   try {
     const blogs = await Blog.findAll({where})
@@ -33,17 +39,7 @@ blogsRouter.get('/', async (req, res, next) => {
     next(err)
   }       
 })  
-// blogsRouter.get('/', async (req, res, next) => {
-//   try {
-//     const blogs = await Blog.findAll()
-//     blogs.forEach(blog => {
-//       console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`)
-//     })
-//     res.status(200).send(blogs)
-//   } catch (err) {
-//     next(err)
-//   } 
-// }) 
+
 blogsRouter.delete('/:id/', isAuthenticated, async (req, res, next) => {
   try {
     const blog = await Blog.findByPk(req.params.id)

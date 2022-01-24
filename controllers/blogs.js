@@ -1,5 +1,22 @@
 const blogsRouter = require('express').Router()
-const Blog = require('../models/blog')
+const { Blog, User } = require('../models/models')
+const jwt = require('jsonwebtoken')
+
+//middleware that checks if user is logged in:
+const isAuthenticated = (req, res, next) => {
+  const token = req.get('Authorization')
+  if (token && token.toLowerCase().startsWith('bearer')) {
+    try {
+      //jwt for user is created using an object that contains username+id, so decoding the token will give us that original object:
+      req.loggedUser = jwt.verify(token.substring(7), process.env.SECRET)
+    } catch(err) {
+      next(err)
+    }
+  } else {
+    res.status(401).send('you need to be authorized in order to perform this action')
+  }
+  next()
+}
     
 blogsRouter.get('/', async (req, res, next) => {
   try {
@@ -12,9 +29,12 @@ blogsRouter.get('/', async (req, res, next) => {
     next(err)
   } 
 }) 
-blogsRouter.delete('/:id/', async (req, res, next) => {
+blogsRouter.delete('/:id/', isAuthenticated, async (req, res, next) => {
   try {
     const blog = await Blog.findByPk(req.params.id)
+    if (blog.userId !== req.loggedUser.id) {
+      return res.status(401).send(`You may not delete this blog because it doesn't belong to user ${req.loggedUser.username}`)
+    }
     blog.destroy()
     res.status(200).send(blog)
   } catch (err) {
@@ -22,8 +42,10 @@ blogsRouter.delete('/:id/', async (req, res, next) => {
   }
 }) 
 blogsRouter.post('/', async (req, res, next) => {
-  const newBlog = Blog.build(req.body)
   try {
+    let newBlog = Blog.build(req.body)
+    const createdByUser = await User.findOne({where: {username: "TestUser333"}})
+    newBlog.userId = createdByUser.id
     await newBlog.save()
     res.status(201).send(newBlog)
   } catch (err) {

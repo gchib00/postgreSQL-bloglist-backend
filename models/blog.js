@@ -39,6 +39,4 @@ Blog.init({
   modelName: 'blogs'
 })
 
-Blog.sync()
-
 module.exports = Blog

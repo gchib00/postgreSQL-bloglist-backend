@@ -2,7 +2,7 @@ POST http://localhost:3000/api/blogs
 content-type: application/json
 
 {
-  "title": "Title with likes!",
+  "title": "Title with likes! Part 2!",
   "author": "Giorgi",
   "url": "www.fakeblogsite.au",
   "likes": 3

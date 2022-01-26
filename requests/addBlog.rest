@@ -2,8 +2,8 @@ POST http://localhost:3000/api/blogs
 content-type: application/json
 
 {
-  "title": "Blog of Gio",
-  "author": "Liam",
-  "url": "www.liamblog.com",
+  "title": "react-ion",
+  "author": "Robert",
+  "url": "www.randomfakesite.pl",
   "likes": 4
 }

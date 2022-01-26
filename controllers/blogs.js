@@ -1,7 +1,8 @@
 const blogsRouter = require('express').Router()
 const { Blog, User } = require('../models/models')
 const { Op } = require("sequelize");
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { sequelize } = require('../models/blog');
 
 //middleware that checks if user is logged in:
 const isAuthenticated = (req, res, next) => {
@@ -30,7 +31,8 @@ blogsRouter.get('/', async (req, res, next) => {
     }
   }
   try {
-    const blogs = await Blog.findAll({where})
+    // const blogs = await Blog.findAll({where}, {order: [sequelize.col('likes')]})
+    const blogs = await Blog.findAll({order: sequelize.col('likes'), where})
     blogs.forEach(blog => {
       console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`)
     })

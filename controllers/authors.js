@@ -1,6 +1,6 @@
 const authorsRouter = require('express').Router()
 const { sequelize } = require('../models/blog')
-const { Blog } = require('../models/models')
+const { Blog } = require('../models')
 
 authorsRouter.get('/', async (req, res, next) => {
   const author = req.body.author

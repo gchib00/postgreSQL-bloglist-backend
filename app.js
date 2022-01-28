@@ -8,6 +8,7 @@ const authorsRouter = require('./controllers/authors')
 
 const cors = require('cors')
 const { Sequelize } = require('sequelize')
+const { Umzug, SequelizeStorage } = require('umzug')
 
 app.use(cors())
 app.use(express.json())
@@ -21,9 +22,26 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
 })
 
+const runMigrations = async () => {
+  const migrator = new Umzug({
+    migrations: {
+      glob: 'migrations/*.js',
+    },
+    storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
+    context: sequelize.getQueryInterface(),
+    logger: console,
+  })
+  
+  const migrations = await migrator.up()
+  console.log('Migrations up to date', {
+    files: migrations.map((mig) => mig.name),
+  })
+}
+
 const start = async () => {
   try {
     await sequelize.authenticate()
+    await runMigrations() 
     console.log('Connection has been established successfully.')
     sequelize.close()
   } catch (error) {
